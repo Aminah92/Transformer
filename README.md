@@ -21,7 +21,7 @@ Major modules implemented in the code
 - Masking(Target and Source)
 
 
-#Acknowledgements:
+# Acknowledgements:
 Credits to the following links as they were very helpful during the course of the experiments:
 
 - [Official Code implementation by Goggle](https://www.tensorflow.org/text/tutorials/transformer#masking)
