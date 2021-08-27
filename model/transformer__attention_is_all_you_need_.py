@@ -47,42 +47,7 @@ b1 = 0.9
 b2 = 0.98
 eps = 1e-9
 
-class Batch:
-    "Object for holding a batch of data with mask during training."
-    def __init__(self, src, trg=None, pad=0):
-        self.src = src
-        self.src_mask = (src != pad).unsqueeze(1) #mask for input 
-        if trg is not None:
-            self.trg = trg[:, :-1]
-            self.trg_y = trg[:, 1:]
-            self.trg_mask = \
-                self.make_std_mask(self.trg, pad)
-            self.ntokens = (self.trg_y != pad).data.sum()
-    
-    @staticmethod
-    def make_std_mask(tgt, pad):
-        "Create a mask to hide padding and future words."
-        tgt_mask = (tgt != pad).unsqueeze(-2)
-        tgt_mask = tgt_mask & Variable(
-            subsequent_mask(tgt.size(-1)).type_as(tgt_mask.data))
-        return tgt_mask
 
-"""# Encoder - Deocder Stack
-
-## 1. Encoder Block
-- composed of a stack of N = 6 identical layers.
-- Each Layer has 2 sub-layers
-
-
-1.   the Feed Forward Layer
-2.   the Self-Attention Layer
-
-The output from the Self-Attention is fed as input to the Feed-Forward Network
-
-# 1. Embeddings and Softmax
-- Using the learned linear transformation and softmax function to convert the decoder output to predicted next-token probabilities.
-
-- In the embedding layer, the weights are multiplied by √dmodel.
 """
 
 # The Input Embeddings:
@@ -244,7 +209,7 @@ class MultiheadAttention(nn.Module):
     return output
 
 class LayerNorm(nn.Module):
-    "Construct a layernorm module (See citation for details)."
+    "Implement a layernorm."
     def __init__(self, dmodel, eps=1e-6):
         super(LayerNorm, self).__init__()
         self.alpha = nn.Parameter(torch.ones(dmodel))
@@ -260,15 +225,15 @@ class LayerNorm(nn.Module):
 
 
 
-class ResidualLayer(nn.Module): 
-  "Implements the residual connection for the sublayers"
-  def __init__(self, dmodel):
-      super(ResidualLayer, self).__init__()
-      self.norm = LayerNorm(dmodel)
-      self.dropout = nn.Dropout(0.1)
+#class ResidualLayer(nn.Module): 
+#  "Implements the residual connection for the sublayers"
+#  def __init__(self, dmodel):
+#      super(ResidualLayer, self).__init__()
+#      self.norm = LayerNorm(dmodel)
+#      self.dropout = nn.Dropout(0.1)
 
-  def forward(self, x, sublayer):
-      return x + self.dropout(sublayer(self.norm(x)))
+#  def forward(self, x, sublayer):
+#      return x + self.dropout(sublayer(self.norm(x)))
 
 class Encoder(nn.Module):
     "Core encoder is a stack of N = 6 layers"
@@ -291,8 +256,8 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
         self.attention = MultiheadAttention(dmodel,h)
         self.pffn = PFFN(dmodel)
-        self.sublayer1 = ResidualLayer(dmodel)
-        self.sublayer2 = ResidualLayer(dmodel)
+        self.sublayer1 = LayerNorm(dmodel)
+        self.sublayer2 = LayerNorm(dmodel)
         self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, x, mask):
@@ -328,9 +293,9 @@ class DecoderLayer(nn.Module):
         super(DecoderLayer, self).__init__()
         self.attention = MultiheadAttention(dmodel,h)
         self.pffn = PFFN(dmodel)
-        self.sublayer1 = ResidualLayer(dmodel)
-        self.sublayer2 = ResidualLayer(dmodel)
-        self.sublayer3 = ResidualLayer(dmodel)
+        self.sublayer1 = LayerNorm(dmodel)
+        self.sublayer2 = LayerNorm(dmodel)
+        self.sublayer3 = LayerNorm(dmodel)
         self.dropout = nn.Dropout(p=0.1)
     def forward(self, x, encoder_out, src_mask, trg_mask): 
       "Takes Encoder output in the second layer and a source and target mask"
@@ -363,3 +328,4 @@ for p in model.parameters():
         nn.init.xavier_uniform_(p)
 
 optim = torch.optim.Adam(model.parameters(), lr=lr, betas=(b1, b2), eps=eps)
+criterion = nn.CrossEntropy()
