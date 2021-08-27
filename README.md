@@ -24,7 +24,7 @@ Major modules implemented in the code
 #Acknowledgements:
 Credits to the following links as they were very helpful during the course of the experiments:
 
-- {Official Code implementation by Googgle](https://www.tensorflow.org/text/tutorials/transformer#masking)
+- [Official Code implementation by Goggle](https://www.tensorflow.org/text/tutorials/transformer#masking)
 - [Annotatd Transformer](http://nlp.seas.harvard.edu/2018/04/03/attention.html)
 - [Alladin Person(Youtube Tutorial)](https://www.youtube.com/watch?v=U0s0f995w14)
 - [Illustrated Transformer](http://jalammar.github.io/illustrated-transformer/)
